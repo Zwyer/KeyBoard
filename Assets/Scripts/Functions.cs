@@ -11,12 +11,14 @@ public class Functions : MonoBehaviour,IPointerDownHandler,IPointerUpHandler
     private StringBuilder sb;
     private int id;
     private int downCount;
+
+    private bool isDown;
     
     void Start()
     {
         id = idChange(gameObject.name);
         sb = new StringBuilder();
-        
+        isDown = false;
     }
 
     int idChange(string name)
@@ -25,31 +27,37 @@ public class Functions : MonoBehaviour,IPointerDownHandler,IPointerUpHandler
         if (name == "CapsLock")
         {
             _id = 0;
+        }else if (name == "LShift")
+        {
+            _id = 6;
+        }else if (name == "Tab")
+        {
+            _id = 4;
         }
         return _id;
     }
     // Update is called once per frame
     void Update()
     {
-        if (id == 0)
-        {
-            CentralContorller.isCaps = (downCount & 1) == 1?true:false;
-        }
+           
     }
 
     public virtual void OnPointerDown(PointerEventData eventData)
     {
         sb.Clear();
         sb.Append(header);
-        switch (id)
+        char t = 'a' + id;
+        sb.Append(t + ",0");
+        downCount++;
+        TCP.toSendMsg = sb;
+        TCP.clickSend = true;
+        isDown = true;
+        if (id == 6 || id == 14)//shift
         {
-            case 0:
-                sb.Append("a,0");
-                downCount++;
-                TCP.toSendMsg = sb;
-                TCP.clickSend = true;
-                break;
-            
+            CentralContorller.isCaps = true;
+        }else if (id == 0)//capslock
+        {
+            CentralContorller.isCaps = (downCount & 1) == 1?true:false;
         }
     }
 
@@ -57,14 +65,15 @@ public class Functions : MonoBehaviour,IPointerDownHandler,IPointerUpHandler
     {
         sb.Clear();
         sb.Append(header);
-        switch (id)
+        char t = 'a' + id;
+        sb.Append(t + ",1");
+        downCount++;
+        TCP.toSendMsg = sb;
+        TCP.clickSend = true;
+        isDown = false;
+        if (id == 6 || id == 14)//shift
         {
-            case 0:
-                sb.Append("a,1");
-                TCP.toSendMsg = sb;
-                TCP.clickSend = true;
-                break;
-            
+            CentralContorller.isCaps = false;
         }
     }
     
