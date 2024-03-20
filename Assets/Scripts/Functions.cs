@@ -10,7 +10,7 @@ public class Functions : MonoBehaviour,IPointerDownHandler,IPointerUpHandler
     private string header = "f,";
     private StringBuilder sb;
     private int id;
-    private int downCount;
+    private int CapsdownCount;
 
     private bool isDown;
     
@@ -33,6 +33,9 @@ public class Functions : MonoBehaviour,IPointerDownHandler,IPointerUpHandler
         }else if (name == "Tab")
         {
             _id = 4;
+        }else if (name == "RShift")
+        {
+            _id = 14;
         }
         return _id;
     }
@@ -46,18 +49,19 @@ public class Functions : MonoBehaviour,IPointerDownHandler,IPointerUpHandler
     {
         sb.Clear();
         sb.Append(header);
-        char t = 'a' + id;
+        char t = (char)('a' + id);
         sb.Append(t + ",0");
-        downCount++;
         TCP.toSendMsg = sb;
         TCP.clickSend = true;
         isDown = true;
         if (id == 6 || id == 14)//shift
         {
-            CentralContorller.isCaps = true;
+            CentralContorller.ShiftDown = true;
+            CentralContorller.isCaps = !CentralContorller.isCaps;
         }else if (id == 0)//capslock
         {
-            CentralContorller.isCaps = (downCount & 1) == 1?true:false;
+            CapsdownCount++;
+            CentralContorller.isCaps = (CapsdownCount & 1) == 1;
         }
     }
 
@@ -65,15 +69,15 @@ public class Functions : MonoBehaviour,IPointerDownHandler,IPointerUpHandler
     {
         sb.Clear();
         sb.Append(header);
-        char t = 'a' + id;
+        char t = (char)('a' + id);
         sb.Append(t + ",1");
-        downCount++;
         TCP.toSendMsg = sb;
         TCP.clickSend = true;
         isDown = false;
         if (id == 6 || id == 14)//shift
         {
-            CentralContorller.isCaps = false;
+            CentralContorller.ShiftDown = false;
+            CentralContorller.isCaps = !CentralContorller.isCaps;
         }
     }
     
